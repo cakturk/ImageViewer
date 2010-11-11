@@ -28,6 +28,45 @@
    <property name="frameShadow">
     <enum>QFrame::Raised</enum>
    </property>
+   <widget class="QPushButton" name="buttonFullscreen">
+    <property name="geometry">
+     <rect>
+      <x>0</x>
+      <y>0</y>
+      <width>88</width>
+      <height>61</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Full Screen</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="buttonSlideshow">
+    <property name="geometry">
+     <rect>
+      <x>90</x>
+      <y>0</y>
+      <width>88</width>
+      <height>61</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Slide Show</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="buttoPreferences">
+    <property name="geometry">
+     <rect>
+      <x>180</x>
+      <y>0</y>
+      <width>88</width>
+      <height>61</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Preferences</string>
+    </property>
+   </widget>
   </widget>
   <widget class="QFrame" name="frameBottom">
    <property name="geometry">
