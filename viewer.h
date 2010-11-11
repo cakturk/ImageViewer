@@ -19,15 +19,17 @@ public:
     void previous(QLayout *layout);
     void add(QString path);
     void add(QStringList path);
-    void startViewing(QLayout *layoutThumbs, QLabel *viewArea);
+    void startViewing(QLayout *layoutThumbs, QLayout *layoutView);
 
 private:
     QList<Image *> images;
     QStringList pathList;
     QSignalMapper mapper;
 
+    quint16 pointer;
+
 private slots:
-    void imageClicked(QObject *str);
+    void imageClicked(QObject *);
 };
 
 #endif // VIEWER_H

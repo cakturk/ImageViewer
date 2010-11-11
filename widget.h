@@ -21,6 +21,12 @@ private:
 
     Ui::Widget *ui;
     Viewer viewer;
+    QWidget *currentImage;
+
+private slots:
+    void next();
+    void previous();
+    void imageClicked(QObject *);
 };
 
 #endif // WIDGET_H

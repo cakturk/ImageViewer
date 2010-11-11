@@ -7,7 +7,7 @@
 #include <QLabel>
 #include <QDebug>
 
-Viewer::Viewer(QObject *parent) : QObject(parent)
+Viewer::Viewer(QObject *parent) : QObject(parent), pointer(0)
 {
     connect(&mapper, SIGNAL(mapped(QObject*)), this, SLOT(imageClicked(QObject *)));
 }
@@ -40,7 +40,7 @@ void Viewer::add(QStringList path)
     }
 }
 
-void Viewer::startViewing(QLayout *layoutThumbs, QLabel *viewArea)
+void Viewer::startViewing(QLayout *layoutThumbs, QLayout *layoutView)
 {
     QToolButton *widget = NULL;
     QPixmap pixmap;
@@ -78,18 +78,31 @@ void Viewer::startViewing(QLayout *layoutThumbs, QLabel *viewArea)
         }
 
         //viewArea->resize(400, 290);
-        viewArea->setPixmap(images.first()->getPathString());
+        //viewArea->setPixmap(images.first()->getPathString());
 //        viewArea->resize(viewArea->pixmap()->size().width() * 291 / viewArea->pixmap()->size().height(),
 //                         291);
+
+        QPixmap pixmap("/home/cihangir/Pictures/b.jpg");
+        QLabel *label = new QLabel;
+        label->setPixmap(pixmap.scaledToHeight(291));
+        layoutView->addWidget(label);
     }
 }
 
-void Viewer::next(QLayout *)
+void Viewer::next(QLayout *layout)
 {
-
+    ++pointer;
+    QString path = images.at(pointer)->getPathString();
+    QPixmap pixmap(path);
+    QLabel *label = new QLabel;
+    label->setPixmap(pixmap.scaledToHeight(291));
+    layout->addWidget(label);
 }
 
-void Viewer::imageClicked(QObject *)
+void Viewer::imageClicked(QObject *obj)
 {
-    qDebug() << "slot invoked";
+    QToolButton *button = static_cast<QToolButton *>(obj);
+    QString path = button->accessibleDescription();
+
+    qDebug() << path;
 }

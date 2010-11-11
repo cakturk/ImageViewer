@@ -11,10 +11,12 @@ public:
     Image();
     Image(QString &pathString);
 
-    void setPath(QString pathString);
+    void setPath(QString &pathString);
     QString getPathString() const;
     QImage getThubnailImage() const;
     QPixmap getThumbnailPixmap() const;
+    QImage scaled() const;
+    QPixmap scaledPixmap() const;
 
 private:
     QString path;
