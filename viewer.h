@@ -15,18 +15,22 @@ class Viewer : public QObject
 public:
     Viewer(QObject *parent = 0);
 
-    void next(QLayout *layout);
-    void previous(QLayout *layout);
+    Image* nextImage();
+    Image* previousImage();
+    Image* getImage(int index);
+    Image* getImage(QString &str);
+    QList<Image *> getImageList(int from, int size) const;
+
     void add(QString path);
     void add(QStringList path);
     void startViewing(QLayout *layoutThumbs, QLayout *layoutView);
+    void setCurrentIndexTo(QString &path);
 
 private:
     QList<Image *> images;
     QStringList pathList;
     QSignalMapper mapper;
-
-    quint16 pointer;
+    quint16 currentIndex;
 
 private slots:
     void imageClicked(QObject *);

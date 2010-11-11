@@ -21,12 +21,19 @@ private:
 
     Ui::Widget *ui;
     Viewer viewer;
-    QWidget *currentImage;
+    QLabel *currentImage;
+    QSignalMapper signalMapper;
+    QString currentImagePath;
 
 private slots:
+    void on_buttonNextThumbs_clicked();
+    void on_buttonPrevious_clicked();
+    void on_buttonNext_clicked();
     void next();
     void previous();
-    void imageClicked(QObject *);
+    void showNextThumbnails();
+    void showPreviousThumbnails();
+    void imageClicked(QObject *obj);
 };
 
 #endif // WIDGET_H

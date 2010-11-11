@@ -7,7 +7,7 @@
 #include <QLabel>
 #include <QDebug>
 
-Viewer::Viewer(QObject *parent) : QObject(parent), pointer(0)
+Viewer::Viewer(QObject *parent) : QObject(parent), currentIndex(-1)
 {
     connect(&mapper, SIGNAL(mapped(QObject*)), this, SLOT(imageClicked(QObject *)));
 }
@@ -77,11 +77,6 @@ void Viewer::startViewing(QLayout *layoutThumbs, QLayout *layoutView)
             }
         }
 
-        //viewArea->resize(400, 290);
-        //viewArea->setPixmap(images.first()->getPathString());
-//        viewArea->resize(viewArea->pixmap()->size().width() * 291 / viewArea->pixmap()->size().height(),
-//                         291);
-
         QPixmap pixmap("/home/cihangir/Pictures/b.jpg");
         QLabel *label = new QLabel;
         label->setPixmap(pixmap.scaledToHeight(291));
@@ -89,14 +84,64 @@ void Viewer::startViewing(QLayout *layoutThumbs, QLayout *layoutView)
     }
 }
 
-void Viewer::next(QLayout *layout)
+
+// TODO: Add bounds check
+Image* Viewer::nextImage()
 {
-    ++pointer;
-    QString path = images.at(pointer)->getPathString();
-    QPixmap pixmap(path);
-    QLabel *label = new QLabel;
-    label->setPixmap(pixmap.scaledToHeight(291));
-    layout->addWidget(label);
+    if (currentIndex == (images.size() - 1))
+        currentIndex = 0;
+    else
+        ++currentIndex;
+
+    return images.at(currentIndex);
+}
+
+Image* Viewer::previousImage()
+{
+    if (currentIndex == 0)
+        currentIndex = images.size() - 1;
+    else
+        --currentIndex;
+    return images.at(currentIndex);
+}
+
+Image* Viewer::getImage(int index)
+{
+    currentIndex = index;
+    return images.at(index);
+}
+
+Image* Viewer::getImage(QString &str)
+{
+    int index = pathList.indexOf(str);
+    if (index != -1)
+        return getImage(index);
+    else
+        return NULL;
+}
+
+QList<Image *> Viewer::getImageList(int from, int size) const
+{
+    if (from < 0 || from >= images.size())
+        return QList<Image *>();
+
+    int to = ((from + size) >= images.size()) ? images.size() : (from + size);
+    QList<Image *> imageList;
+    Image *image;
+    for (int index = from; index < to; ++index) {
+        image = images.at(index);
+        imageList.append(image);
+    }
+
+    return imageList;
+}
+
+void Viewer::setCurrentIndexTo(QString &path)
+{
+    int index = pathList.indexOf(path);
+    if (index == -1)
+        return;
+    currentIndex = index;
 }
 
 void Viewer::imageClicked(QObject *obj)
