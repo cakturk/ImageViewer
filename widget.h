@@ -24,8 +24,10 @@ private:
     QLabel *currentImage;
     QSignalMapper signalMapper;
     QString currentImagePath;
+    int currentIndex;
 
 private slots:
+    void on_buttonPreviousThumbs_clicked();
     void on_buttonNextThumbs_clicked();
     void on_buttonPrevious_clicked();
     void on_buttonNext_clicked();
