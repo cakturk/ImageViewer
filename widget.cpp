@@ -9,7 +9,8 @@ Widget::Widget(QWidget *parent) :
     QWidget(parent),
     ui(new Ui::Widget),
     currentImage(new QLabel),
-    currentIndex(-6)
+    currentIndex(-1),
+    thumbnailIndex(-5)
 {
     ui->setupUi(this);
     QHBoxLayout *layout = new QHBoxLayout;
@@ -24,8 +25,8 @@ Widget::Widget(QWidget *parent) :
 
     connect(&signalMapper, SIGNAL(mapped(QObject*)), this, SLOT(imageClicked(QObject*)));
     start();
-    next();
     showNextThumbnails();
+    next();
 
 }
 
@@ -50,10 +51,15 @@ void Widget::start()
 
 void Widget::next()
 {
+    if (currentIndex == currentImages.size() - 1) {
+        showNextThumbnails();
+        currentIndex = -1;
+    }
     ++currentIndex;
-    QString str = viewer.nextImage()->getPathString();
+
+    QString str = currentImages.at(currentIndex)->getPathString();
+
     currentImagePath = str;
-    //QPixmap pixmap = QPixmap(str).scaledToHeight(ui->viewArea->height());
     QPixmap pixmap = QPixmap(str).scaled(400, 300, Qt::KeepAspectRatio, Qt::FastTransformation)
                      .scaled(ui->viewArea->size(), Qt::KeepAspectRatio, Qt::SmoothTransformation);
     currentImage->setPixmap(pixmap);
@@ -61,19 +67,33 @@ void Widget::next()
 
 void Widget::previous()
 {
+    if (currentIndex == 0) {
+        showPreviousThumbnails();
+        currentIndex = currentImages.size() - 2;
+    }
     --currentIndex;
-    QString str = viewer.previousImage()->getPathString();
+
+    QString str = currentImages.at(currentIndex)->getPathString();
     currentImagePath = str;
-//    QPixmap pixmap = QPixmap(str).scaledToHeight(ui->viewArea->height());
     QPixmap pixmap = QPixmap(str).scaled(400, 300, Qt::KeepAspectRatio, Qt::FastTransformation)
                      .scaled(ui->viewArea->size(), Qt::KeepAspectRatio, Qt::SmoothTransformation);
+
     currentImage->setPixmap(pixmap);
 }
 
 void Widget::showNextThumbnails()
 {
-    currentIndex += 5;
-    QList<Image *> list = viewer.getImageList(currentIndex, 5);
+    int viewersize = viewer.size();
+    if (thumbnailIndex >= viewersize) {
+        thumbnailIndex = 0;
+    } else {
+        if ((thumbnailIndex + 5) >= viewersize)
+            thumbnailIndex = 0;
+        else
+            thumbnailIndex += 5;
+    }
+
+    currentImages = viewer.getImageList(thumbnailIndex, 5);
 
     QPixmap pixmap;
     QToolButton *button;
@@ -84,14 +104,16 @@ void Widget::showNextThumbnails()
         delete child->widget();
     }
 
-    for (int j = 0; j < list.size(); ++j) {
-        image = list.at(j);
+    for (int j = 0; j < currentImages.size(); ++j) {
+        image = currentImages.at(j);
         pixmap = image->getThumbnailPixmap();
         button = new QToolButton;
         button->setFixedSize(pixmap.size());
+        button->setAccessibleName(QString::number(j));
         button->setAccessibleDescription(image->getPathString());
         button->setIcon(pixmap);
         button->setIconSize(pixmap.size());
+        button->setAutoRaise(true);
 
         connect(button, SIGNAL(clicked()),&signalMapper, SLOT(map()));
         signalMapper.setMapping(static_cast<QObject *>(button), static_cast<QObject *>(button));
@@ -102,10 +124,17 @@ void Widget::showNextThumbnails()
 
 void Widget::showPreviousThumbnails()
 {
-    QList<Image *> list = viewer.getImageList(currentIndex - 5, 5);
-    currentIndex -= 5;
-    if (currentIndex < 0)
-        currentIndex = list.size() - 5;
+    int viewersize = viewer.size();
+    if (thumbnailIndex <= 0 && (viewersize - 5) >= 0) {
+        thumbnailIndex = viewersize - 5;
+    } else {
+        if ((thumbnailIndex - 5) < 0)
+            thumbnailIndex = 0;
+        else
+            thumbnailIndex -= 5;
+    }
+
+    currentImages = viewer.getImageList(thumbnailIndex, 5);
 
     QPixmap pixmap;
     QToolButton *button;
@@ -115,14 +144,16 @@ void Widget::showPreviousThumbnails()
     while ((child = ui->frameThumnailArea->layout()->takeAt(0)) != 0)
         delete child->widget();
 
-    for (int j = 0; j < list.size(); ++j) {
-        image = list.at(j);
+    for (int j = 0; j < currentImages.size(); ++j) {
+        image = currentImages.at(j);
         pixmap = image->getThumbnailPixmap();
         button = new QToolButton;
         button->setFixedSize(pixmap.size());
+        button->setAccessibleName(QString::number(j));
         button->setAccessibleDescription(image->getPathString());
         button->setIcon(pixmap);
         button->setIconSize(pixmap.size());
+        button->setAutoRaise(true);
 
         connect(button, SIGNAL(clicked()),&signalMapper, SLOT(map()));
         signalMapper.setMapping(static_cast<QObject *>(button), static_cast<QObject *>(button));
@@ -135,12 +166,12 @@ void Widget::imageClicked(QObject *obj)
 {
     QLabel *label = static_cast<QLabel *>(obj);
     QString str = label->accessibleDescription();
+    currentIndex = label->accessibleName().toInt();
 
     if (str.isEmpty())
         return;
     Image *image = viewer.getImage(str);
     QString path = image->getPathString();
-//    QPixmap pixmap = QPixmap(path).scaledToHeight(ui->viewArea->height());
     QPixmap pixmap = QPixmap(path).scaled(400, 300, Qt::KeepAspectRatio);
     currentImage->setPixmap(pixmap);
 
@@ -165,4 +196,11 @@ void Widget::on_buttonNextThumbs_clicked()
 void Widget::on_buttonPreviousThumbs_clicked()
 {
     showPreviousThumbnails();
+}
+
+void Widget::on_buttonFullscreen_clicked()
+{
+    ui->frameToolbar->hide();
+    ui->frameBottom->hide();
+    this->showFullScreen();
 }

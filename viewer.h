@@ -25,6 +25,7 @@ public:
     void add(QStringList path);
     void startViewing(QLayout *layoutThumbs, QLayout *layoutView);
     void setCurrentIndexTo(QString &path);
+    inline int size() const { return images.size(); }
 
 private:
     QList<Image *> images;

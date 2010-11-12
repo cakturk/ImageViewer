@@ -24,9 +24,12 @@ private:
     QLabel *currentImage;
     QSignalMapper signalMapper;
     QString currentImagePath;
+    QList<Image *> currentImages;
     int currentIndex;
+    int thumbnailIndex;
 
 private slots:
+    void on_buttonFullscreen_clicked();
     void on_buttonPreviousThumbs_clicked();
     void on_buttonNextThumbs_clicked();
     void on_buttonPrevious_clicked();
