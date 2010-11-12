@@ -2,6 +2,7 @@
 #include "ui_widget.h"
 #include <QHBoxLayout>
 #include <QLabel>
+#include <QDesktopWidget>
 #include <QDebug>
 #include "image.h"
 
@@ -10,7 +11,8 @@ Widget::Widget(QWidget *parent) :
     ui(new Ui::Widget),
     currentImage(new QLabel),
     currentIndex(-1),
-    thumbnailIndex(-5)
+    thumbnailIndex(-5),
+    fullScreen(false)
 {
     ui->setupUi(this);
     QHBoxLayout *layout = new QHBoxLayout;
@@ -18,16 +20,16 @@ Widget::Widget(QWidget *parent) :
     ui->frameThumnailArea->setLayout(layout);
 
     layout = new QHBoxLayout;
+    layout->setContentsMargins(0, 0, 0, 0);
     ui->viewArea->setLayout(layout);
     layout->setAlignment(Qt::AlignCenter);
 
     ui->viewArea->layout()->addWidget(currentImage);
+    currentImage->installEventFilter(this);
 
     connect(&signalMapper, SIGNAL(mapped(QObject*)), this, SLOT(imageClicked(QObject*)));
     start();
     showNextThumbnails();
-    next();
-
 }
 
 Widget::~Widget()
@@ -37,16 +39,16 @@ Widget::~Widget()
 
 void Widget::start()
 {
-    QString path = "/home/cihangir/Pictures/";
-    viewer.add(path + "a.jpg");
-    viewer.add(path + "b.jpg");
-    viewer.add(path + "c.jpg");
-    viewer.add(path + "iss.jpg");
-    viewer.add(path + "japanese-airplane-doubilet_18505_990x742.jpg");
-    viewer.add(path + "golden-gate.jpg");
-    viewer.add(path + "353_87-1280x1024.jpg");
-    viewer.add(path + "Single-White-Oak-Great-Smoky-Mountains-National-Park-Tennessee.jpg");
-    viewer.add(path + "wp6_medium.jpg");
+    QString pathToImage = "/home/cihangir/Pictures/";
+    viewer.add(pathToImage + "a.jpg");
+    viewer.add(pathToImage + "b.jpg");
+    viewer.add(pathToImage + "c.jpg");
+    viewer.add(pathToImage + "iss.jpg");
+    viewer.add(pathToImage + "japanese-airplane-doubilet_18505_990x742.jpg");
+    viewer.add(pathToImage + "golden-gate.jpg");
+    viewer.add(pathToImage + "353_87-1280x1024.jpg");
+    viewer.add(pathToImage + "Single-White-Oak-Great-Smoky-Mountains-National-Park-Tennessee.jpg");
+    viewer.add(pathToImage + "wp6_medium.jpg");
 }
 
 void Widget::next()
@@ -120,6 +122,12 @@ void Widget::showNextThumbnails()
 
         ui->frameThumnailArea->layout()->addWidget(button);
     }
+
+    currentIndex = 0;
+    image = currentImages.at(currentIndex);
+    QString path = image->getPathString();
+    pixmap = QPixmap(path).scaled(400, 300, Qt::KeepAspectRatio);
+    currentImage->setPixmap(pixmap);
 }
 
 void Widget::showPreviousThumbnails()
@@ -160,6 +168,12 @@ void Widget::showPreviousThumbnails()
 
         ui->frameThumnailArea->layout()->addWidget(button);
     }
+
+    currentIndex = currentImages.size() - 1;
+    image = currentImages.at(currentIndex);
+    QString path = image->getPathString();
+    pixmap = QPixmap(path).scaled(400, 300, Qt::KeepAspectRatio);
+    currentImage->setPixmap(pixmap);
 }
 
 void Widget::imageClicked(QObject *obj)
@@ -170,7 +184,7 @@ void Widget::imageClicked(QObject *obj)
 
     if (str.isEmpty())
         return;
-    Image *image = viewer.getImage(str);
+    Image *image = currentImages.at(currentIndex);
     QString path = image->getPathString();
     QPixmap pixmap = QPixmap(path).scaled(400, 300, Qt::KeepAspectRatio);
     currentImage->setPixmap(pixmap);
@@ -200,7 +214,30 @@ void Widget::on_buttonPreviousThumbs_clicked()
 
 void Widget::on_buttonFullscreen_clicked()
 {
+    QDesktopWidget *desktop = QApplication::desktop();
+    QSize size = desktop->size();
     ui->frameToolbar->hide();
     ui->frameBottom->hide();
     this->showFullScreen();
+    ui->viewArea->resize(size);
+    ui->viewArea->move(0, 0);
+
+    QString str = currentImages.at(currentIndex)->getPathString();
+    QPixmap pixmap = QPixmap(str).scaled(size, Qt::KeepAspectRatio, Qt::SmoothTransformation);
+    currentImage->setPixmap(pixmap);
+}
+
+bool Widget::eventFilter(QObject *obj, QEvent *event)
+{
+    if (event->type() == QEvent::MouseButtonPress) {
+        if (fullScreen == false) {
+            fullScreen = true;
+            on_buttonFullscreen_clicked();
+        } else {
+            qDebug() << "exit from fullscreen";
+        }
+        return true;
+    } else {
+        return QObject::eventFilter(obj, event);
+    }
 }

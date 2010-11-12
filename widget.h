@@ -16,6 +16,9 @@ public:
     explicit Widget(QWidget *parent = 0);
     ~Widget();
 
+protected:
+    bool eventFilter(QObject *, QEvent *);
+
 private:
     void start();
 
@@ -27,6 +30,7 @@ private:
     QList<Image *> currentImages;
     int currentIndex;
     int thumbnailIndex;
+    bool fullScreen;
 
 private slots:
     void on_buttonFullscreen_clicked();
