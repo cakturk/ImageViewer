@@ -51,6 +51,23 @@ void Widget::start()
     viewer.add(pathToImage + "wp6_medium.jpg");
 }
 
+void Widget::startSlideShow()
+{
+    on_buttonFullscreen_clicked();
+    if (0 == startTimer(2000))
+        qDebug() << "Error";
+}
+
+void Widget::timerEvent(QTimerEvent *)
+{
+    if (++currentIndex >= currentImages.size())
+        currentIndex = 0;
+
+    QString str = currentImages.at(currentIndex)->getPathString();
+    QPixmap pixmap = QPixmap(str).scaled(ui->viewArea->size(), Qt::KeepAspectRatio, Qt::SmoothTransformation);
+    currentImage->setPixmap(pixmap);
+}
+
 void Widget::next()
 {
     if (currentIndex == currentImages.size() - 1) {
@@ -214,30 +231,51 @@ void Widget::on_buttonPreviousThumbs_clicked()
 
 void Widget::on_buttonFullscreen_clicked()
 {
-    QDesktopWidget *desktop = QApplication::desktop();
-    QSize size = desktop->size();
-    ui->frameToolbar->hide();
-    ui->frameBottom->hide();
-    this->showFullScreen();
-    ui->viewArea->resize(size);
-    ui->viewArea->move(0, 0);
+    static QSize oldSize;
+    static QPoint oldPosition;
+    static bool isFullScreen = false;
+    QString str;
+    QPixmap pixmap;
 
-    QString str = currentImages.at(currentIndex)->getPathString();
-    QPixmap pixmap = QPixmap(str).scaled(size, Qt::KeepAspectRatio, Qt::SmoothTransformation);
-    currentImage->setPixmap(pixmap);
+    if (isFullScreen == true) {
+        ui->frameToolbar->show();
+        ui->frameBottom->show();
+        showNormal();
+        ui->viewArea->resize(oldSize);
+        ui->viewArea->move(oldPosition);
+        str = currentImages.at(currentIndex)->getPathString();
+        pixmap = QPixmap(str).scaled(oldSize, Qt::KeepAspectRatio, Qt::SmoothTransformation);
+        currentImage->setPixmap(pixmap);
+        isFullScreen = false;
+    } else {
+        oldSize = ui->viewArea->size();
+        oldPosition = ui->viewArea->pos();
+
+        QDesktopWidget *desktop = QApplication::desktop();
+        QSize size = desktop->size();
+        ui->frameToolbar->hide();
+        ui->frameBottom->hide();
+        showFullScreen();
+        ui->viewArea->resize(size);
+        ui->viewArea->move(0, 0);
+        str = currentImages.at(currentIndex)->getPathString();
+        pixmap = QPixmap(str).scaled(size, Qt::KeepAspectRatio, Qt::SmoothTransformation);
+        currentImage->setPixmap(pixmap);
+        isFullScreen = true;
+    }
 }
 
 bool Widget::eventFilter(QObject *obj, QEvent *event)
 {
     if (event->type() == QEvent::MouseButtonPress) {
-        if (fullScreen == false) {
-            fullScreen = true;
-            on_buttonFullscreen_clicked();
-        } else {
-            qDebug() << "exit from fullscreen";
-        }
+        on_buttonFullscreen_clicked();
         return true;
     } else {
         return QObject::eventFilter(obj, event);
     }
+}
+
+void Widget::on_buttonSlideshow_clicked()
+{
+    startSlideShow();
 }

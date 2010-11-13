@@ -84,8 +84,6 @@ void Viewer::startViewing(QLayout *layoutThumbs, QLayout *layoutView)
     }
 }
 
-
-// TODO: Add bounds check
 Image* Viewer::nextImage()
 {
     if (currentIndex == (images.size() - 1))

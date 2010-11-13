@@ -23,10 +23,16 @@
     </rect>
    </property>
    <property name="frameShape">
-    <enum>QFrame::StyledPanel</enum>
+    <enum>QFrame::Box</enum>
    </property>
    <property name="frameShadow">
     <enum>QFrame::Raised</enum>
+   </property>
+   <property name="lineWidth">
+    <number>1</number>
+   </property>
+   <property name="midLineWidth">
+    <number>0</number>
    </property>
    <widget class="QPushButton" name="buttonFullscreen">
     <property name="geometry">

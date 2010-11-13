@@ -21,6 +21,8 @@ protected:
 
 private:
     void start();
+    void startSlideShow();
+    void timerEvent(QTimerEvent *);
 
     Ui::Widget *ui;
     Viewer viewer;
@@ -33,6 +35,7 @@ private:
     bool fullScreen;
 
 private slots:
+    void on_buttonSlideshow_clicked();
     void on_buttonFullscreen_clicked();
     void on_buttonPreviousThumbs_clicked();
     void on_buttonNextThumbs_clicked();
