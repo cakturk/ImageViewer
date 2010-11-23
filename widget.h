@@ -22,6 +22,7 @@ protected:
 private:
     void start();
     void startSlideShow();
+    void stopSlideShow();
     void timerEvent(QTimerEvent *);
 
     Ui::Widget *ui;
@@ -29,9 +30,10 @@ private:
     QLabel *currentImage;
     QSignalMapper signalMapper;
     QString currentImagePath;
-    QList<Image *> currentImages;
+    QList<const Image *> currentImages;
     int currentIndex;
     int thumbnailIndex;
+    int timerId;
     bool fullScreen;
 
 private slots:

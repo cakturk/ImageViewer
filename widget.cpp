@@ -54,8 +54,14 @@ void Widget::start()
 void Widget::startSlideShow()
 {
     on_buttonFullscreen_clicked();
-    if (0 == startTimer(2000))
+    timerId = startTimer(2000);
+    if (0 == timerId)
         qDebug() << "Error";
+}
+
+void Widget::stopSlideShow()
+{
+
 }
 
 void Widget::timerEvent(QTimerEvent *)
@@ -116,7 +122,7 @@ void Widget::showNextThumbnails()
 
     QPixmap pixmap;
     QToolButton *button;
-    Image *image;
+    const Image *image;
 
     QLayoutItem *child;
     while ((child = ui->frameThumnailArea->layout()->takeAt(0)) != 0) {
@@ -163,7 +169,7 @@ void Widget::showPreviousThumbnails()
 
     QPixmap pixmap;
     QToolButton *button;
-    Image *image;
+    const Image *image;
 
     QLayoutItem *child;
     while ((child = ui->frameThumnailArea->layout()->takeAt(0)) != 0)
@@ -201,7 +207,7 @@ void Widget::imageClicked(QObject *obj)
 
     if (str.isEmpty())
         return;
-    Image *image = currentImages.at(currentIndex);
+    const Image *image = currentImages.at(currentIndex);
     QString path = image->getPathString();
     QPixmap pixmap = QPixmap(path).scaled(400, 300, Qt::KeepAspectRatio);
     currentImage->setPixmap(pixmap);
@@ -247,6 +253,10 @@ void Widget::on_buttonFullscreen_clicked()
         pixmap = QPixmap(str).scaled(oldSize, Qt::KeepAspectRatio, Qt::SmoothTransformation);
         currentImage->setPixmap(pixmap);
         isFullScreen = false;
+
+        if (timerId != 0)
+            killTimer(timerId);
+
     } else {
         oldSize = ui->viewArea->size();
         oldPosition = ui->viewArea->pos();

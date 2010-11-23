@@ -12,6 +12,12 @@ Viewer::Viewer(QObject *parent) : QObject(parent), currentIndex(-1)
     connect(&mapper, SIGNAL(mapped(QObject*)), this, SLOT(imageClicked(QObject *)));
 }
 
+Viewer::~Viewer()
+{
+    foreach (Image *image, images)
+        delete image;
+}
+
 void Viewer::add(QString path)
 {
     Image *image = NULL;
@@ -118,13 +124,13 @@ Image* Viewer::getImage(QString &str)
         return NULL;
 }
 
-QList<Image *> Viewer::getImageList(int from, int size) const
+QList<const Image *> Viewer::getImageList(int from, int size) const
 {
     if (from < 0 || from >= images.size())
-        return QList<Image *>();
+        return QList<const Image *>();
 
     int to = ((from + size) >= images.size()) ? images.size() : (from + size);
-    QList<Image *> imageList;
+    QList<const Image *> imageList;
     Image *image;
     for (int index = from; index < to; ++index) {
         image = images.at(index);

@@ -14,12 +14,13 @@ class Viewer : public QObject
 
 public:
     Viewer(QObject *parent = 0);
+    virtual ~Viewer();
 
     Image* nextImage();
     Image* previousImage();
     Image* getImage(int index);
     Image* getImage(QString &str);
-    QList<Image *> getImageList(int from, int size) const;
+    QList<const Image *> getImageList(int from, int size) const;
 
     void add(QString path);
     void add(QStringList path);

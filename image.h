@@ -20,6 +20,7 @@ public:
 
 private:
     QString path;
+    int value;
 };
 
 #endif // IMAGE_H

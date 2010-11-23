@@ -2,7 +2,7 @@
 #include <QImage>
 #include <QPixmap>
 
-Image::Image()
+Image::Image() : value(0)
 {
 }
 
